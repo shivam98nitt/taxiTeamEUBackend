@@ -3,6 +3,7 @@ import { MapsService } from './maps.service';
 import { SearchPlaceDto } from './dto/search-place.dto';
 import { ReverseGeocodeDto } from './dto/reverse-geocode.dto';
 import { EstimateDto } from './dto/estimate.dto';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('maps')
 export class MapsController {
@@ -24,8 +25,8 @@ export class MapsController {
     return this.mapsService.reverseGeocode(body.lat, body.lng);
   }
 
-  @Get('estimate')
-  async estimateRide(@Query() query: EstimateDto) {
-    return this.mapsService.estimate(query);
+  @Post('estimate')
+  async estimateRide(@Body() dto: EstimateDto) {
+    return this.mapsService.estimate(dto);
   }
 }

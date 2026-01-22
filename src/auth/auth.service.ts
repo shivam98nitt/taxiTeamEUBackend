@@ -3,6 +3,8 @@ import * as bcrypt from 'bcrypt';
 import { DatabaseService } from '../database/database.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import twilio from 'twilio';
+
 
 @Injectable()
 export class AuthService {
@@ -10,7 +12,7 @@ export class AuthService {
     private readonly db: DatabaseService,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
-  ) {}
+  ) { }
 
   // 1️⃣ Request OTP
   async requestOtp(phone: string) {
@@ -34,11 +36,27 @@ export class AuthService {
 
     // TEMP: log OTP (remove when SMS integrated)
     console.log(`OTP for ${phone}: ${otp}`);
+    // this.sendOtpNotification(phone, otp).catch(err => {
+    //   console.error('Failed to send OTP SMS', err);
+    // });
 
     return {
       success: true,
-      expires_in_seconds: 300,
+      expires_in_seconds: 120,
     };
+  }
+
+  sendOtpNotification = async (phone: string, otp:string) => {
+    const client = twilio(
+      process.env.TWILIO_ACCOUNT_SID,
+      process.env.TWILIO_AUTH_TOKEN
+    );
+
+    await client.messages.create({
+      body: `Your OTP for EU Taxi is ${otp}. It is valid for 2 minutes.`,
+      to: phone, // ✅ must be in E.164 format (e.g. +9198xxxxxxxx)
+      from: process.env.TWILIO_PHONE_NUMBER,
+    });
   }
 
   // 2️⃣ Verify OTP

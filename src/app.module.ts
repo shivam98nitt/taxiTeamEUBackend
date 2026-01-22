@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import {ThrottlerModule,seconds} from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -11,6 +12,12 @@ import { DriversModule } from './drivers/drivers.module';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      throttlers:[{
+        ttl: seconds(60),
+        limit: 30,
+      }]
+    }),
     AuthModule,
     UsersModule,
     DatabaseModule,
