@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Pool ,QueryResult} from 'pg';
+import { Pool, QueryResult } from 'pg';
 
 @Injectable()
 export class DatabaseService
@@ -9,15 +9,24 @@ export class DatabaseService
 
     constructor(private readonly config: ConfigService) { }
 
+    // onModuleInit() {
+    //     this.pool = new Pool({
+    //         host: this.config.get<string>('DB_HOST'),
+    //         port: this.config.get<number>('DB_PORT'),
+    //         user: this.config.get<string>('DB_USER'),
+    //         password: this.config.get<string>('DB_PASSWORD'),
+    //         database: this.config.get<string>('DB_NAME'),
+    //     });
+    // }
     onModuleInit() {
         this.pool = new Pool({
-            host: this.config.get<string>('DB_HOST'),
-            port: this.config.get<number>('DB_PORT'),
-            user: this.config.get<string>('DB_USER'),
-            password: this.config.get<string>('DB_PASSWORD'),
-            database: this.config.get<string>('DB_NAME'),
+            connectionString: this.config.get<string>('DATABASE_URL'),
+            ssl: {
+                rejectUnauthorized: false,
+            },
         });
     }
+
 
     async query<T = any>(
         query: string,
@@ -27,7 +36,7 @@ export class DatabaseService
         return result;
     }
 
-    async getClient() : Promise<Pool.Client> {
+    async getClient(): Promise<Pool.Client> {
         return await this.pool.connect();
     }
 
