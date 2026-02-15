@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { DatabaseService } from '../database/database.service';
 import { JwtService } from '@nestjs/jwt';
@@ -8,6 +8,7 @@ import twilio from 'twilio';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   constructor(
     private readonly db: DatabaseService,
     private readonly jwtService: JwtService,
@@ -19,7 +20,7 @@ export class AuthService {
     const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit
     const otpHash = await bcrypt.hash(otp, 10);
     phone = phone.replace(/\s+/g, ''); // Remove spaces
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    const expiresAt = new Date(Date.now() + 1 * 60 * 1000); // 5 minutes
 
     await this.db.query(
       `
@@ -29,20 +30,20 @@ export class AuthService {
       DO UPDATE SET
         otp_hash = EXCLUDED.otp_hash,
         expires_at = EXCLUDED.expires_at,
-        attempts_left = 5
+        attempts_left = 3
       `,
       [phone, otpHash, expiresAt],
     );
 
     // TEMP: log OTP (remove when SMS integrated)
-    console.log(`OTP for ${phone}: ${otp}`);
+    this.logger.debug(`OTP for ${phone}: ${otp}`);
     // this.sendOtpNotification(phone, otp).catch(err => {
     //   console.error('Failed to send OTP SMS', err);
     // });
 
     return {
       success: true,
-      expires_in_seconds: 120,
+      expires_in_seconds: 60,
     };
   }
 

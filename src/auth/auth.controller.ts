@@ -16,7 +16,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   // 1️⃣ Request OTP
   @Post('otp/request')
@@ -36,17 +36,22 @@ export class AuthController {
   }
 
   @Post('logout')
-  async logout(@Headers('authorization') authHeader: string) {
+  async logout(@Headers('authorization') authHeader?: string) {
     if (!authHeader) {
-      throw new UnauthorizedException('Missing token');
+      // Already logged out
+      return { success: true };
     }
 
-    const token = authHeader.replace('Bearer ', '');
-
-    const payload: any = this.authService['jwtService'].verify(token);
-
-    return this.authService.logout(payload.sub);
+    try {
+      const token = authHeader.replace('Bearer ', '');
+      const payload: any = this.authService['jwtService'].verify(token);
+      return await this.authService.logout(payload.sub);
+    } catch (err) {
+      // Token invalid / expired → still logged out
+      return { success: true };
+    }
   }
+
 
   @Get('me')
   @UseGuards(JwtAuthGuard)

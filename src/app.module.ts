@@ -7,8 +7,10 @@ import { UsersModule } from './users/users.module';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
 import { MapsModule } from './maps/maps.module';
-import { RidesModule } from './rides/rides.module';
+import { RideModule } from './ride/ride.module';
 import { DriversModule } from './drivers/drivers.module';
+import { SocketModule } from './socket/socket.module';
+import { DriverLocationModule } from './driver-location/driver-location.module';
 
 @Module({
   imports: [
@@ -18,13 +20,15 @@ import { DriversModule } from './drivers/drivers.module';
         limit: 30,
       }]
     }),
+    SocketModule,
     AuthModule,
     UsersModule,
     DatabaseModule,
     ConfigModule.forRoot({ isGlobal: true }),
     MapsModule,
-    RidesModule,
+    RideModule,
     DriversModule,
+    DriverLocationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

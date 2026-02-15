@@ -8,6 +8,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:4937', // Flutter Web
+      'http://localhost:4939', // Flutter Web
       'http://localhost:3000',  // optional
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',

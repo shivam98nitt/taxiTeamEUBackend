@@ -21,7 +21,7 @@ export class MapsService {
   };
 
   async searchPlace(query: string, limit: number) {
-    console.log("searchplace",query,limit);
+    this.logger.debug(`searchplace ${query} ${limit}`);
     try {
       const url = `https://api.tomtom.com/search/2/search/${encodeURIComponent(
         query,
@@ -55,7 +55,7 @@ export class MapsService {
   }
 
   async reverseGeocode(lat: number, lng: number) {
-    console.log("reversgeocode",lat,lng);
+    this.logger.debug(`reversgeocode ${lat},${lng}`);
     try {
       const url = `https://api.tomtom.com/search/2/reverseGeocode/${lat},${lng}.json`;
 
@@ -119,7 +119,7 @@ export class MapsService {
         points,
       };
     } catch (err) {
-      console.error(err.response?.data || err.message);
+      this.logger.error(err.response?.data || err.message);
       throw new InternalServerErrorException('Failed to calculate route');
     }
   }
